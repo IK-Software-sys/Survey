@@ -7,17 +7,17 @@
     <style>
         :root {
             --med-blue: #3182ce;
-            --bg-dark: #0f172a;
-            --card-dark: #1e293b;
-            --text-light: #f1f5f9;
-            --sanity-red: #ef4444;
+            --bg-dark: #0a0e17;
+            --card-dark: #161b22;
+            --text-light: #c9d1d9;
+            --sanity-red: #da3633;
         }
 
         body {
             margin: 0; padding: 0;
             background-color: var(--bg-dark);
             color: var(--text-light);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             height: 100vh; display: flex; flex-direction: column;
             overflow: hidden;
         }
@@ -27,42 +27,43 @@
             color: var(--med-blue); padding: 12px;
             text-align: center; font-size: 0.7rem;
             text-transform: uppercase; letter-spacing: 3px;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid #30363d;
         }
 
         .stats-bar {
             padding: 10px 20px; background: #000;
             display: flex; justify-content: space-between; align-items: center;
-            font-size: 0.75rem; letter-spacing: 1px;
+            font-size: 0.75rem; letter-spacing: 1px; color: #8b949e;
         }
 
-        .sanity-container { width: 120px; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; }
+        .sanity-container { width: 120px; height: 6px; background: #30363d; border-radius: 3px; overflow: hidden; }
         #sanity-fill { height: 100%; width: 100%; background: var(--sanity-red); transition: width 0.4s ease; }
 
-        .progress-bar { height: 2px; background: #1e293b; width: 100%; }
+        .progress-bar { height: 2px; background: #21262d; width: 100%; }
         #progress-fill { height: 100%; background: var(--med-blue); width: 0%; transition: width 0.3s; }
 
         main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
 
         .survey-card {
             width: 100%; max-width: 460px;
-            background: var(--card-dark); padding: 30px;
-            border-radius: 8px; border: 1px solid #334155;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            background: var(--card-dark); padding: 35px;
+            border-radius: 6px; border: 1px solid #30363d;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+            transition: opacity 0.5s ease;
         }
 
-        h2 { font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 400; color: #cbd5e1; }
+        h2 { font-size: 1.05rem; margin-bottom: 25px; line-height: 1.6; font-weight: 400; color: #f0f6fc; }
 
-        .options-list { display: flex; flex-direction: column; gap: 10px; }
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
 
         .btn-opt {
-            background: #0f172a; border: 1px solid #334155;
-            padding: 14px; border-radius: 4px; color: #94a3b8;
+            background: #0d1117; border: 1px solid #30363d;
+            padding: 15px; border-radius: 4px; color: #8b949e;
             text-align: left; font-size: 0.85rem; cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
 
-        .btn-opt:hover { background: #1e293b; border-color: var(--med-blue); color: white; }
+        .btn-opt:hover { background: #1c2128; border-color: #8b949e; color: #f0f6fc; }
 
         #blackout {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -84,7 +85,7 @@
         }
 
         .breathing { animation: breathe 4s infinite ease-in-out; }
-        @keyframes breathe { 0% { transform: scale(1); } 50% { transform: scale(1.02); filter: brightness(1.2); } 100% { transform: scale(1); } }
+        @keyframes breathe { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -154,7 +155,6 @@
         if (step === 5) document.getElementById('bg-sfx').play().catch(()=>{});
         if (step === 10) document.getElementById('whisper-sfx').play();
         if (step === 15) document.getElementById('card').classList.add('breathing');
-        if (step === 19) document.getElementById('door-sfx').play();
 
         data.opts.forEach((text, i) => {
             const b = document.createElement('button');
@@ -169,7 +169,7 @@
         document.getElementById('click-sfx').currentTime = 0;
         document.getElementById('click-sfx').play();
         
-        // Damage logic: Picking the last few options (more disturbing) drains sanity
+        // Sanity damage logic
         if (index === 3) sanity -= 10;
         if (index === 4) sanity -= 20;
         
@@ -198,33 +198,42 @@
             document.getElementById('gun-sfx').play();
             blackout.style.display = "block";
 
+            // 3-second blackout before report
             setTimeout(() => {
                 report.style.display = "block";
                 content.innerHTML = `
-                    <h2 style="color:red">POLICE DEPARTMENT - CRIME SCENE DIVISION</h2>
+                    <h2 style="color:#ef4444">POLICE DEPARTMENT - CRIME SCENE DIVISION</h2>
                     <p><strong>CASE ID:</strong> 2026-X88</p>
                     <p><strong>SUBJECT:</strong> UNIDENTIFIED USER</p>
                     <hr style="border-color:#333">
                     <p>Officers arrived at the scene at 03:14 AM following reports of a single gunshot. Upon entry, the victim was discovered seated at a desk, facing a computer screen.</p>
-                    <p>The display showed a 'Clinical Assessment' survey with 0% Stability remaining. No external force was detected. Forensics recovered a standard 9mm casing. </p>
+                    <p>The display showed a 'Clinical Assessment' survey with 0% Stability remaining. The firearm was found in the subject's hand. No external force was detected.</p>
                     <p>The browser history indicates a rapid descent into acute paranoid psychosis over the span of 20 questions. Case closed: Self-Termination.</p>
                 `;
             }, 3000);
         } else {
-            document.getElementById('jumpscare-sfx').play();
-            startStatic();
+            // Intruder ending sequence: Door then Static
+            document.getElementById('bg-sfx').pause();
+            document.getElementById('door-sfx').play();
+            document.getElementById('card').style.opacity = "0";
+
             setTimeout(() => {
-                report.style.display = "block";
-                content.innerHTML = `
-                    <h2 style="color:white">FEDERAL BUREAU OF INVESTIGATION - MISSING PERSONS</h2>
-                    <p><strong>CASE ID:</strong> 2026-M41</p>
-                    <p><strong>STATUS:</strong> OPEN / UNRESOLVED</p>
-                    <hr style="border-color:#333">
-                    <p>The victim's residence was found abandoned. The front door was left wide open. Coffee was still warm on the desk. No biological traces were found at the scene.</p>
-                    <p>Evidence gathered from dark web intercepts suggests the victim was 'harvested' within minutes of completing an online psychological screening. Intelligence indicates several internal organs were sold via a black market portal 4 hours after the disappearance.</p>
-                    <p>The subject is still missing. No body is expected to be found.</p>
-                `;
-            }, 1500);
+                document.getElementById('jumpscare-sfx').play();
+                startStatic();
+                
+                setTimeout(() => {
+                    report.style.display = "block";
+                    content.innerHTML = `
+                        <h2 style="color:white">FBI MISSING PERSONS BUREAU</h2>
+                        <p><strong>CASE ID:</strong> 2026-M41</p>
+                        <p><strong>STATUS:</strong> OPEN / UNRESOLVED</p>
+                        <hr style="border-color:#333">
+                        <p>The victim's residence was found abandoned. The front door was found forced open from the inside. Coffee was still warm on the desk. No biological traces were found at the scene.</p>
+                        <p>Evidence gathered from dark web intercepts suggests the victim was 'harvested' within minutes of completing a psychological screening. Intelligence indicates several internal organs were sold via a private auction 4 hours after the disappearance.</p>
+                        <p>The subject is still missing. They are survived by no one.</p>
+                    `;
+                }, 1500);
+            }, 2500); // Wait for door creak to finish
         }
     }
 
