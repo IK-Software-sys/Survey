@@ -87,6 +87,12 @@
 <audio id="bg-sfx" loop>
     <source src="freesound_community-scray-reverse-piano-with-clock-ticking-63173.mp3" type="audio/mpeg">
 </audio>
+<audio id="whisper-sfx">
+    <source src="dragon-studio-scary-ghost-whisper-410565 (1).mp3" type="audio/mpeg">
+</audio>
+<audio id="click-sfx">
+    <source src="mixkit-negative-tone-interface-tap-2569.wav" type="audio/wav">
+</audio>
 <audio id="jumpscare-sfx">
     <source src="u_xg7ssi08yr-television-static-421360.mp3" type="audio/mpeg">
 </audio>
@@ -94,6 +100,8 @@
 <script>
     let step = 0;
     const bgAudio = document.getElementById('bg-sfx');
+    const whisperAudio = document.getElementById('whisper-sfx');
+    const clickAudio = document.getElementById('click-sfx');
     const jumpAudio = document.getElementById('jumpscare-sfx');
     const canvas = document.getElementById('static-canvas');
     const ctx = canvas.getContext('2d');
@@ -132,10 +140,17 @@
         
         document.getElementById('progress-fill').style.width = ((step / questions.length) * 100) + "%";
         
+        // Background Music Trigger
         if (step === 5) {
-            bgAudio.play().catch(e => console.log("Audio waiting for interaction..."));
+            bgAudio.play().catch(e => console.log("Audio waiting..."));
+        }
+
+        // Whisper Trigger at Q11 (index 10)
+        if (step === 10) {
+            whisperAudio.play();
         }
         
+        // Visual Intensity
         if (step >= 10) {
             card.classList.add('breathing');
             document.body.style.backgroundColor = "#0d1117";
@@ -152,12 +167,16 @@
             if (i === 4 && step >= 10) b.classList.add('glitch-text');
             if (i === 4 && step >= 15) b.innerText = "ERROR: SYSTEM FORCED";
             
-            b.onclick = next;
+            b.onclick = handleChoice;
             optBox.appendChild(b);
         });
     }
 
-    function next() {
+    function handleChoice() {
+        // Play click sound every time
+        clickAudio.currentTime = 0;
+        clickAudio.play();
+        
         step++;
         if (step < questions.length) {
             updateGame();
@@ -168,6 +187,7 @@
 
     function triggerEnding() {
         bgAudio.pause();
+        whisperAudio.pause();
         jumpAudio.play();
         
         canvas.style.opacity = "0.9";
