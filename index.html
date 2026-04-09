@@ -93,6 +93,9 @@
 <audio id="click-sfx">
     <source src="mixkit-negative-tone-interface-tap-2569.wav" type="audio/wav">
 </audio>
+<audio id="door-sfx">
+    <source src="dragon-studio-door-creaking-335491.mp3" type="audio/mpeg">
+</audio>
 <audio id="jumpscare-sfx">
     <source src="u_xg7ssi08yr-television-static-421360.mp3" type="audio/mpeg">
 </audio>
@@ -102,6 +105,7 @@
     const bgAudio = document.getElementById('bg-sfx');
     const whisperAudio = document.getElementById('whisper-sfx');
     const clickAudio = document.getElementById('click-sfx');
+    const doorAudio = document.getElementById('door-sfx');
     const jumpAudio = document.getElementById('jumpscare-sfx');
     const canvas = document.getElementById('static-canvas');
     const ctx = canvas.getContext('2d');
@@ -140,17 +144,15 @@
         
         document.getElementById('progress-fill').style.width = ((step / questions.length) * 100) + "%";
         
-        // Background Music Trigger
-        if (step === 5) {
-            bgAudio.play().catch(e => console.log("Audio waiting..."));
-        }
-
-        // Whisper Trigger at Q11 (index 10)
-        if (step === 10) {
-            whisperAudio.play();
+        // Audio Triggers
+        if (step === 5) bgAudio.play().catch(e => {});
+        if (step === 10) whisperAudio.play();
+        
+        // NEW TRIGGER: Door Creak on Q20 (index 19)
+        if (step === 19) {
+            doorAudio.play();
         }
         
-        // Visual Intensity
         if (step >= 10) {
             card.classList.add('breathing');
             document.body.style.backgroundColor = "#0d1117";
@@ -173,7 +175,6 @@
     }
 
     function handleChoice() {
-        // Play click sound every time
         clickAudio.currentTime = 0;
         clickAudio.play();
         
@@ -188,6 +189,7 @@
     function triggerEnding() {
         bgAudio.pause();
         whisperAudio.pause();
+        doorAudio.pause();
         jumpAudio.play();
         
         canvas.style.opacity = "0.9";
