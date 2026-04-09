@@ -9,7 +9,7 @@
             --med-blue: #2a5298;
             --clinical-white: #f0f2f5;
             --text-dark: #1a202c;
-            --horror-red: #8b0000;
+            --sanity-color: #48bb78;
         }
 
         body {
@@ -18,7 +18,7 @@
             color: var(--text-dark);
             font-family: 'Segoe UI', sans-serif;
             height: 100vh; display: flex; flex-direction: column;
-            overflow: hidden; transition: background 1.5s ease;
+            overflow: hidden; transition: background 2s ease;
         }
 
         header {
@@ -29,7 +29,20 @@
             z-index: 10;
         }
 
-        .progress-bar { height: 4px; background: #ccd6dd; width: 100%; z-index: 10; }
+        .stats-container {
+            padding: 10px 20px;
+            background: #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .sanity-wrapper { width: 150px; height: 10px; background: #cbd5e0; border-radius: 5px; overflow: hidden; }
+        #sanity-fill { height: 100%; width: 100%; background: var(--sanity-color); transition: width 0.5s, background 0.5s; }
+
+        .progress-bar { height: 4px; background: #ccd6dd; width: 100%; }
         #progress-fill { height: 100%; background: #4299e1; width: 0%; transition: width 0.3s; }
 
         main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 5; }
@@ -39,7 +52,7 @@
             background: white; padding: 25px;
             border-radius: 4px; border-bottom: 3px solid var(--med-blue);
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: all 0.5s ease;
+            transition: all 0.8s ease;
         }
 
         h2 { font-size: 1.1rem; margin-bottom: 20px; line-height: 1.6; font-weight: 500; }
@@ -50,29 +63,35 @@
             background: #fff; border: 1px solid #d1d5db;
             padding: 14px; border-radius: 4px;
             text-align: left; font-size: 0.9rem;
-            outline: none; -webkit-tap-highlight-color: transparent;
+            outline: none; cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .btn-opt:active { transform: scale(0.98); }
+
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; display: none; z-index: 1000;
+            color: white; padding: 40px; box-sizing: border-box;
+            font-family: 'Courier New', monospace; overflow-y: auto;
         }
 
         #static-canvas {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            opacity: 0; pointer-events: none;
-            z-index: 999;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; pointer-events: none; z-index: 999;
         }
 
-        .glitch-text { color: var(--horror-red) !important; font-family: monospace; font-weight: bold; }
-        
-        .breathing { animation: breathe 4s infinite ease-in-out; }
-        @keyframes breathe {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.03); filter: brightness(0.8); }
-            100% { transform: scale(1); }
-        }
+        .report-text { max-width: 600px; margin: 0 auto; line-height: 1.6; border-left: 2px solid #555; padding-left: 20px; }
+        .breathing { animation: breathe 5s infinite ease-in-out; }
+        @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
     </style>
 </head>
 <body>
 
-<header id="header-txt">Central Medical Database - Security Level 4</header>
+<header>Central Medical Database - Security Level 4</header>
+<div class="stats-container">
+    <span>PATIENT STABILITY</span>
+    <div class="sanity-wrapper"><div id="sanity-fill"></div></div>
+</div>
 <div class="progress-bar"><div id="progress-fill"></div></div>
 
 <canvas id="static-canvas"></canvas>
@@ -84,131 +103,138 @@
     </div>
 </main>
 
-<audio id="bg-sfx" loop>
-    <source src="freesound_community-scray-reverse-piano-with-clock-ticking-63173.mp3" type="audio/mpeg">
-</audio>
-<audio id="whisper-sfx">
-    <source src="dragon-studio-scary-ghost-whisper-410565 (1).mp3" type="audio/mpeg">
-</audio>
-<audio id="click-sfx">
-    <source src="mixkit-negative-tone-interface-tap-2569.wav" type="audio/wav">
-</audio>
-<audio id="door-sfx">
-    <source src="dragon-studio-door-creaking-335491.mp3" type="audio/mpeg">
-</audio>
-<audio id="jumpscare-sfx">
-    <source src="u_xg7ssi08yr-television-static-421360.mp3" type="audio/mpeg">
-</audio>
+<div id="overlay">
+    <div class="report-text" id="report-content"></div>
+</div>
+
+<audio id="bg-sfx" loop><source src="freesound_community-scray-reverse-piano-with-clock-ticking-63173.mp3" type="audio/mpeg"></audio>
+<audio id="whisper-sfx"><source src="dragon-studio-scary-ghost-whisper-410565 (1).mp3" type="audio/mpeg"></audio>
+<audio id="click-sfx"><source src="mixkit-negative-tone-interface-tap-2569.wav" type="audio/wav"></audio>
+<audio id="door-sfx"><source src="dragon-studio-door-creaking-335491.mp3" type="audio/mpeg"></audio>
+<audio id="jumpscare-sfx"><source src="u_xg7ssi08yr-television-static-421360.mp3" type="audio/mpeg"></audio>
+<audio id="gun-sfx"><source src="freesound_community-gun-shot-1-7069.mp3" type="audio/mpeg"></audio>
 
 <script>
     let step = 0;
-    const bgAudio = document.getElementById('bg-sfx');
-    const whisperAudio = document.getElementById('whisper-sfx');
-    const clickAudio = document.getElementById('click-sfx');
-    const doorAudio = document.getElementById('door-sfx');
-    const jumpAudio = document.getElementById('jumpscare-sfx');
-    const canvas = document.getElementById('static-canvas');
-    const ctx = canvas.getContext('2d');
-
+    let sanity = 100;
     const questions = [
-        { q: "How many hours of restful sleep have you achieved in the last 48 hours?", opts: ["8+ hours", "6 hours", "4 hours", "2 hours", "None"] },
-        { q: "Do you find yourself losing interest in hobbies you previously enjoyed?", opts: ["Not at all", "Slightly", "Significantly", "Entirely", "I don't remember joy"] },
-        { q: "Rate your current level of physical exhaustion.", opts: ["Low", "Moderate", "High", "Debilitating", "My limbs feel like lead"] },
-        { q: "How often do you struggle to get out of bed in the morning?", opts: ["Never", "Once a week", "Every other day", "Daily", "The bed is the only safe place"] },
-        { q: "Do you experience 'brain fog' or difficulty concentrating?", opts: ["Never", "Rarely", "Often", "Always", "Thoughts are disappearing"] },
-        
-        { q: "When you look in the mirror, do you recognize the person looking back?", opts: ["Always", "Mostly", "Rarely", "It's a stranger", "It is not my face"] },
-        { q: "Does the concept of 'tomorrow' bring you any sense of hope?", opts: ["Yes", "Maybe", "No", "Tomorrow is a threat", "Time has stopped"] },
-        { q: "How often do you feel like you are watching your life through a screen?", opts: ["Never", "Rarely", "Commonly", "I am a spectator", "Break the glass"] },
-        { q: "Rate the silence in your home.", opts: ["Peaceful", "Quiet", "Heavy", "Suffocating", "The silence is screaming"] },
-        { q: "Do you feel like you are being punished for something you didn't do?", opts: ["No", "Unsure", "Yes", "By life", "I deserve this"] },
-
-        { q: "Do you hear your name being called when no one else is in the room?", opts: ["Never", "Once", "Weekly", "Daily", "We are talking now"] },
-        { q: "Do you believe your neighbors have installed cameras inside your walls?", opts: ["No", "Unlikely", "Possibly", "I've seen the lenses", "They are watching"] },
-        { q: "Does the static on the TV contain messages meant only for you?", opts: ["No", "N/A", "Sometimes", "Clearly", "I follow the static"] },
-        { q: "How many people are currently hiding in your peripheral vision?", opts: ["0", "Maybe 1", "3 or more", "Too many to count", "One is touching you"] },
-        { q: "Do your thoughts feel like they belong to someone else?", opts: ["No", "Occasionally", "Mostly", "They are stolen", "Stop reading my mind"] },
-
-        { q: "Can you feel the breathing on the back of your neck right now?", opts: ["No", "Just a draft", "Yes", "It's getting warmer", "Don't turn around"] },
-        { q: "If you were to vanish this very moment, would anyone truly notice your disappearance?", opts: ["Yes", "Eventually", "Maybe one person", "Probably not", "I am already gone"] },
-        { q: "If you disappeared tonight, how many days would pass before the smell alerted the neighbors?", opts: ["1-2 days", "A week", "A month", "Nobody would check", "I'm already gone"] },
-        { q: "Are you still alone in the room?", opts: ["Yes", "No", "I think so", "Someone just moved", "HELP ME"] },
-        { q: "Will you let us in?", opts: ["No", "Please stop", "Yes", "I have no choice", "THE DOOR IS OPEN"] }
+        { q: "How many hours of sleep have you achieved recently?", opts: ["8 hours", "6 hours", "4 hours", "2 hours", "None"], damage: [0, 0, 5, 10, 20] },
+        { q: "Do you find yourself losing interest in your hobbies?", opts: ["Never", "Rarely", "Often", "Entirely", "I don't remember joy"], damage: [0, 0, 5, 10, 20] },
+        { q: "Rate your current level of physical exhaustion.", opts: ["Low", "Moderate", "High", "Debilitating", "My limbs feel like lead"], damage: [0, 5, 10, 15, 25] },
+        { q: "Do you experience 'brain fog' or difficulty concentrating?", opts: ["Never", "Rarely", "Often", "Always", "Thoughts are disappearing"], damage: [0, 0, 5, 15, 25] },
+        { q: "When you look in the mirror, do you recognize the person?", opts: ["Always", "Mostly", "Rarely", "It's a stranger", "It is not my face"], damage: [0, 5, 15, 20, 30] },
+        { q: "Does the concept of 'tomorrow' bring you hope?", opts: ["Yes", "Maybe", "No", "Tomorrow is a threat", "Time has stopped"], damage: [0, 5, 10, 20, 30] },
+        { q: "Rate the silence in your home.", opts: ["Peaceful", "Quiet", "Heavy", "Suffocating", "The silence is screaming"], damage: [0, 0, 10, 20, 40] },
+        { q: "Do you hear your name called when no one is home?", opts: ["Never", "Once", "Weekly", "Daily", "We are talking now"], damage: [0, 5, 15, 25, 50] },
+        { q: "How many shapes are in your peripheral vision?", opts: ["0", "Maybe 1", "3 or more", "Too many", "One is touching you"], damage: [0, 10, 20, 30, 60] },
+        { q: "Will you let us in?", opts: ["No", "Please stop", "Yes", "I have no choice", "THE DOOR IS OPEN"], damage: [10, 20, 0, 0, 0] }
     ];
 
     function updateGame() {
         const data = questions[step];
-        const qElement = document.getElementById('q-text');
+        document.getElementById('q-text').innerText = data.q;
         const optBox = document.getElementById('opt-list');
-        const card = document.getElementById('card');
-        
-        document.getElementById('progress-fill').style.width = ((step / questions.length) * 100) + "%";
-        
-        // Audio Triggers
-        if (step === 5) bgAudio.play().catch(e => {});
-        if (step === 10) whisperAudio.play();
-        
-        // NEW TRIGGER: Door Creak on Q20 (index 19)
-        if (step === 19) {
-            doorAudio.play();
-        }
-        
-        if (step >= 10) {
-            card.classList.add('breathing');
-            document.body.style.backgroundColor = "#0d1117";
-        }
-
-        qElement.innerText = data.q;
         optBox.innerHTML = '';
+
+        document.getElementById('progress-fill').style.width = ((step / questions.length) * 100) + "%";
+
+        if (step === 3) document.getElementById('bg-sfx').play().catch(() => {});
+        if (step === 7) document.getElementById('whisper-sfx').play();
+        if (step === 9) {
+            document.getElementById('door-sfx').play();
+            document.getElementById('card').classList.add('breathing');
+        }
 
         data.opts.forEach((text, i) => {
             const b = document.createElement('button');
             b.className = 'btn-opt';
             b.innerText = text;
-            
-            if (i === 4 && step >= 10) b.classList.add('glitch-text');
-            if (i === 4 && step >= 15) b.innerText = "ERROR: SYSTEM FORCED";
-            
-            b.onclick = handleChoice;
+            b.onclick = () => handleChoice(data.damage[i]);
             optBox.appendChild(b);
         });
     }
 
-    function handleChoice() {
-        clickAudio.currentTime = 0;
-        clickAudio.play();
+    function handleChoice(dmg) {
+        document.getElementById('click-sfx').currentTime = 0;
+        document.getElementById('click-sfx').play();
         
+        sanity -= dmg;
+        if (sanity < 0) sanity = 0;
+        updateSanityUI();
+
+        if (sanity <= 0) {
+            triggerEnding("suicide");
+            return;
+        }
+
         step++;
         if (step < questions.length) {
             updateGame();
         } else {
-            triggerEnding();
+            triggerEnding("intruder");
         }
     }
 
-    function triggerEnding() {
-        bgAudio.pause();
-        whisperAudio.pause();
-        doorAudio.pause();
-        jumpAudio.play();
+    function updateSanityUI() {
+        const fill = document.getElementById('sanity-fill');
+        fill.style.width = sanity + "%";
+        if (sanity < 30) {
+            fill.style.background = "#e53e3e";
+            document.body.style.background = "#1a202c";
+        } else if (sanity < 60) {
+            fill.style.background = "#dd6b20";
+        }
+    }
+
+    function triggerEnding(type) {
+        const overlay = document.getElementById('overlay');
+        const report = document.getElementById('report-content');
         
-        canvas.style.opacity = "0.9";
+        if (type === "suicide") {
+            document.getElementById('bg-sfx').pause();
+            document.getElementById('gun-sfx').play();
+            overlay.style.display = "block";
+            report.innerHTML = `
+                <h1>POLICE REPORT: CASE #9902</h1>
+                <p><strong>STATUS:</strong> CLOSED (DECEASED)</p>
+                <hr>
+                <p>On [REDACTED], officers responded to reports of a single gunshot at the subject's residence.</p>
+                <p>Upon entry, the subject was found at their desk. A browser window was open to a 'Clinical Assessment' portal. No signs of struggle were present.</p>
+                <p>Forensics found notes scattered around the room detailing a 'presence' that does not exist on any security footage.</p>
+                <p><em>"The subject simply couldn't handle the silence anymore."</em></p>
+            `;
+        } else {
+            document.getElementById('jumpscare-sfx').play();
+            startStatic();
+            setTimeout(() => {
+                overlay.style.display = "block";
+                report.innerHTML = `
+                    <h1>MISSING PERSONS BUREAU: CASE #1105</h1>
+                    <p><strong>STATUS:</strong> INVESTIGATION ONGOING</p>
+                    <hr>
+                    <p>Subject vanished from their locked apartment on Tuesday night. Neighbors report a "door creaking" sound, despite the subject being alone.</p>
+                    <p>Blood splatter was found in the hallway, but no body. Forensic analysis of the dark web has flagged several high-value 'biological listings' matching the subject's rare blood type.</p>
+                    <p>The subject is presumed to be disassembled and distributed across several international markets.</p>
+                    <p><strong>CURRENT LOCATION:</strong> UNKNOWN / PIECES</p>
+                `;
+            }, 2000);
+        }
+    }
+
+    function startStatic() {
+        const canvas = document.getElementById('static-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.style.opacity = "1";
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        
-        function drawStatic() {
+        function draw() {
             const idata = ctx.createImageData(canvas.width, canvas.height);
             const buffer32 = new Uint32Array(idata.data.buffer);
-            for (let i = 0; i < buffer32.length; i++) {
-                buffer32[i] = Math.random() < 0.5 ? 0xff000000 : 0xffffffff;
-            }
+            for (let i = 0; i < buffer32.length; i++) buffer32[i] = Math.random() < 0.5 ? 0xff000000 : 0xffffffff;
             ctx.putImageData(idata, 0, 0);
-            requestAnimationFrame(drawStatic);
+            if(canvas.style.opacity === "1") requestAnimationFrame(draw);
         }
-        drawStatic();
-
-        document.getElementById('card').innerHTML = `<h2 class="glitch-text" style="color:white !important; text-align:center; position:relative; z-index:1000;">SUBJECT ACQUIRED.<br>SESSION TERMINATED.</h2>`;
-        if(navigator.vibrate) navigator.vibrate([100, 100, 100, 800]);
+        draw();
     }
 
     updateGame();
