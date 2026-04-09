@@ -6,92 +6,93 @@
     <title>Clinical Assessment Portal</title>
     <style>
         :root {
-            --med-blue: #1a365d;
+            --med-blue: #3182ce;
             --bg-dark: #0f172a;
-            --card-bg: #1e293b;
+            --card-dark: #1e293b;
             --text-light: #f1f5f9;
-            --sanity-color: #22c55e;
-            --border-glow: #334155;
+            --sanity-red: #ef4444;
         }
 
         body {
             margin: 0; padding: 0;
             background-color: var(--bg-dark);
             color: var(--text-light);
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             height: 100vh; display: flex; flex-direction: column;
             overflow: hidden;
         }
 
         header {
             background: #000;
-            color: #64748b; padding: 10px;
+            color: var(--med-blue); padding: 12px;
             text-align: center; font-size: 0.7rem;
             text-transform: uppercase; letter-spacing: 3px;
-            border-bottom: 1px solid var(--border-glow);
+            border-bottom: 1px solid #334155;
         }
 
-        .stats-container {
-            padding: 12px 25px;
-            background: #020617;
+        .stats-bar {
+            padding: 10px 20px; background: #000;
             display: flex; justify-content: space-between; align-items: center;
             font-size: 0.75rem; letter-spacing: 1px;
         }
 
-        .sanity-wrapper { width: 120px; height: 6px; background: #334155; border-radius: 3px; overflow: hidden; }
-        #sanity-fill { height: 100%; width: 100%; background: var(--sanity-color); transition: width 0.4s ease; }
+        .sanity-container { width: 120px; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; }
+        #sanity-fill { height: 100%; width: 100%; background: var(--sanity-red); transition: width 0.4s ease; }
 
         .progress-bar { height: 2px; background: #1e293b; width: 100%; }
-        #progress-fill { height: 100%; background: #3b82f6; width: 0%; transition: width 0.3s; }
+        #progress-fill { height: 100%; background: var(--med-blue); width: 0%; transition: width 0.3s; }
 
         main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
 
         .survey-card {
-            width: 100%; max-width: 420px;
-            background: var(--card-bg); padding: 30px;
-            border-radius: 8px; border: 1px solid var(--border-glow);
+            width: 100%; max-width: 460px;
+            background: var(--card-dark); padding: 30px;
+            border-radius: 8px; border: 1px solid #334155;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        h2 { font-size: 1.05rem; margin-bottom: 25px; line-height: 1.6; font-weight: 400; color: #cbd5e1; }
+        h2 { font-size: 1rem; margin-bottom: 25px; line-height: 1.5; font-weight: 400; color: #cbd5e1; }
 
         .options-list { display: flex; flex-direction: column; gap: 10px; }
 
         .btn-opt {
             background: #0f172a; border: 1px solid #334155;
-            padding: 15px; border-radius: 5px;
-            text-align: left; font-size: 0.85rem; color: #94a3b8;
-            outline: none; cursor: pointer; transition: all 0.2s;
+            padding: 14px; border-radius: 4px; color: #94a3b8;
+            text-align: left; font-size: 0.85rem; cursor: pointer;
+            transition: all 0.2s;
         }
-        .btn-opt:hover { background: #1e293b; border-color: #475569; color: #f1f5f9; }
 
-        #overlay {
+        .btn-opt:hover { background: #1e293b; border-color: var(--med-blue); color: white; }
+
+        #blackout {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: black; display: none; z-index: 1000;
-            color: #d1d5db; padding: 50px; box-sizing: border-box;
-            font-family: 'Courier New', monospace;
+            background: black; display: none; z-index: 2000;
         }
 
+        #police-report {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #050505; color: #d1d5db; padding: 50px;
+            display: none; z-index: 2001; font-family: 'Courier New', Courier, monospace;
+            overflow-y: auto;
+        }
+
+        .report-box { max-width: 650px; margin: 0 auto; border: 1px solid #222; padding: 30px; line-height: 1.6; }
+        
         #static-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0; pointer-events: none; z-index: 999;
+            opacity: 0; pointer-events: none; z-index: 1000;
         }
 
-        .report-text { 
-            max-width: 550px; margin: 50px auto; line-height: 1.8; 
-            opacity: 0; transition: opacity 2s ease;
-        }
-
-        .breathing { animation: breathe 6s infinite ease-in-out; }
-        @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.015); opacity: 0.8; } }
+        .breathing { animation: breathe 4s infinite ease-in-out; }
+        @keyframes breathe { 0% { transform: scale(1); } 50% { transform: scale(1.02); filter: brightness(1.2); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-<header>Neural Assessment Terminal v.4.0.2</header>
-<div class="stats-container">
-    <span>SYSTEM_STABILITY:</span>
-    <div class="sanity-wrapper"><div id="sanity-fill"></div></div>
+<header>Central Medical Database - Security Level 4</header>
+<div class="stats-bar">
+    <span>STABILITY INDEX</span>
+    <div class="sanity-container"><div id="sanity-fill"></div></div>
 </div>
 <div class="progress-bar"><div id="progress-fill"></div></div>
 
@@ -99,13 +100,14 @@
 
 <main>
     <div class="survey-card" id="card">
-        <h2 id="q-text">Initializing session...</h2>
+        <h2 id="q-text">Initialising...</h2>
         <div class="options-list" id="opt-list"></div>
     </div>
 </main>
 
-<div id="overlay">
-    <div class="report-text" id="report-content"></div>
+<div id="blackout"></div>
+<div id="police-report">
+    <div class="report-box" id="report-content"></div>
 </div>
 
 <audio id="bg-sfx" loop><source src="freesound_community-scray-reverse-piano-with-clock-ticking-63173.mp3" type="audio/mpeg"></audio>
@@ -118,17 +120,27 @@
 <script>
     let step = 0;
     let sanity = 100;
-    
     const questions = [
-        { q: "How much sleep have you achieved in the last 48 hours?", opts: ["8 hours", "6 hours", "4 hours", "2 hours", "None"], damage: [0, 0, 10, 15, 25] },
-        { q: "Do you find yourself losing interest in hobbies?", opts: ["Never", "Rarely", "Significantly", "Entirely", "I don't remember joy"], damage: [0, 5, 10, 20, 30] },
-        { q: "Rate your current level of mental exhaustion.", opts: ["Low", "Moderate", "High", "Debilitating", "My mind is failing"], damage: [0, 5, 15, 20, 35] },
-        { q: "Do you experience 'brain fog' or phantom sounds?", opts: ["Never", "Rarely", "Often", "Always", "They are constant"], damage: [0, 5, 15, 25, 40] },
-        { q: "When you look in the mirror, do you recognize the face?", opts: ["Always", "Mostly", "Rarely", "It's a stranger", "It is not my face"], damage: [0, 10, 20, 30, 50] },
-        { q: "Does the concept of 'tomorrow' feel like a threat?", opts: ["No", "Unsure", "Yes", "Terrifying", "There is no tomorrow"], damage: [0, 10, 15, 30, 45] },
-        { q: "Rate the pressure of the silence in this room.", opts: ["Normal", "Heavy", "Suffocating", "Vibrating", "The silence is screaming"], damage: [0, 10, 25, 35, 50] },
-        { q: "Is someone standing directly behind you right now?", opts: ["No", "Unlikely", "Possibly", "I can feel them", "They are touching me"], damage: [0, 15, 30, 45, 60] },
-        { q: "Will you open the door to let the process finish?", opts: ["No", "Please stop", "Yes", "I have no choice", "THE DOOR IS OPEN"], damage: [20, 30, 5, 0, 0] }
+        { q: "How many hours of restful sleep have you achieved in the last 48 hours?", opts: ["8+ hours", "6 hours", "4 hours", "2 hours", "None"] },
+        { q: "Do you find yourself losing interest in hobbies you previously enjoyed?", opts: ["Not at all", "Slightly", "Significantly", "Entirely", "I don't remember joy"] },
+        { q: "Rate your current level of physical exhaustion.", opts: ["Low", "Moderate", "High", "Debilitating", "My limbs feel like lead"] },
+        { q: "How often do you struggle to get out of bed in the morning?", opts: ["Never", "Once a week", "Every other day", "Daily", "The bed is the only safe place"] },
+        { q: "Do you experience 'brain fog' or difficulty concentrating?", opts: ["Never", "Rarely", "Often", "Always", "Thoughts are disappearing"] },
+        { q: "When you look in the mirror, do you recognize the person looking back?", opts: ["Always", "Mostly", "Rarely", "It's a stranger", "It is not my face"] },
+        { q: "Does the concept of 'tomorrow' bring you any sense of hope?", opts: ["Yes", "Maybe", "No", "Tomorrow is a threat", "Time has stopped"] },
+        { q: "How often do you feel like you are watching your life through a screen?", opts: ["Never", "Rarely", "Commonly", "I am a spectator", "Break the glass"] },
+        { q: "Rate the silence in your home.", opts: ["Peaceful", "Quiet", "Heavy", "Suffocating", "The silence is screaming"] },
+        { q: "Do you feel like you are being punished for something you didn't do?", opts: ["No", "Unsure", "Yes", "By life", "I deserve this"] },
+        { q: "Do you hear your name being called when no one else is in the room?", opts: ["Never", "Once", "Weekly", "Daily", "We are talking now"] },
+        { q: "Do you believe your neighbors have installed cameras inside your walls?", opts: ["No", "Unlikely", "Possibly", "I've seen the lenses", "They are watching"] },
+        { q: "Does the static on the TV contain messages meant only for you?", opts: ["No", "N/A", "Sometimes", "Clearly", "I follow the static"] },
+        { q: "How many people are currently hiding in your peripheral vision?", opts: ["0", "Maybe 1", "3 or more", "Too many to count", "One is touching you"] },
+        { q: "Do your thoughts feel like they belong to someone else?", opts: ["No", "Occasionally", "Mostly", "They are stolen", "Stop reading my mind"] },
+        { q: "Can you feel the breathing on the back of your neck right now?", opts: ["No", "Just a draft", "Yes", "It's getting warmer", "Don't turn around"] },
+        { q: "If you were to vanish this very moment, would anyone truly notice your disappearance?", opts: ["Yes", "Eventually", "Maybe one person", "Probably not", "I am already gone"] },
+        { q: "If you disappeared tonight, how many days would pass before the smell alerted the neighbors?", opts: ["1-2 days", "A week", "A month", "Nobody would check", "I'm already gone"] },
+        { q: "Are you still alone in the room?", opts: ["Yes", "No", "I think so", "Someone just moved", "HELP ME"] },
+        { q: "Will you let us in?", opts: ["No", "Please stop", "Yes", "I have no choice", "THE DOOR IS OPEN"] }
     ];
 
     function updateGame() {
@@ -139,26 +151,29 @@
 
         document.getElementById('progress-fill').style.width = ((step / questions.length) * 100) + "%";
 
-        if (step === 2) document.getElementById('bg-sfx').play().catch(() => {});
-        if (step === 5) document.getElementById('whisper-sfx').play();
-        if (step === 8) document.getElementById('door-sfx').play();
+        if (step === 5) document.getElementById('bg-sfx').play().catch(()=>{});
+        if (step === 10) document.getElementById('whisper-sfx').play();
+        if (step === 15) document.getElementById('card').classList.add('breathing');
+        if (step === 19) document.getElementById('door-sfx').play();
 
         data.opts.forEach((text, i) => {
             const b = document.createElement('button');
             b.className = 'btn-opt';
             b.innerText = text;
-            b.onclick = () => handleChoice(data.damage[i]);
+            b.onclick = () => handleChoice(i);
             optBox.appendChild(b);
         });
     }
 
-    function handleChoice(dmg) {
+    function handleChoice(index) {
         document.getElementById('click-sfx').currentTime = 0;
         document.getElementById('click-sfx').play();
         
-        sanity -= dmg;
-        if (sanity < 0) sanity = 0;
-        updateSanityUI();
+        // Damage logic: Picking the last few options (more disturbing) drains sanity
+        if (index === 3) sanity -= 10;
+        if (index === 4) sanity -= 20;
+        
+        document.getElementById('sanity-fill').style.width = sanity + "%";
 
         if (sanity <= 0) {
             triggerEnding("suicide");
@@ -173,50 +188,43 @@
         }
     }
 
-    function updateSanityUI() {
-        const fill = document.getElementById('sanity-fill');
-        fill.style.width = sanity + "%";
-        if (sanity < 35) fill.style.background = "#ef4444";
-    }
-
     function triggerEnding(type) {
-        const overlay = document.getElementById('overlay');
-        const report = document.getElementById('report-content');
-        
+        const blackout = document.getElementById('blackout');
+        const report = document.getElementById('police-report');
+        const content = document.getElementById('report-content');
+
         if (type === "suicide") {
             document.getElementById('bg-sfx').pause();
             document.getElementById('gun-sfx').play();
-            // Black out
-            overlay.style.display = "block";
-            
-            // Wait 3 seconds then show text
+            blackout.style.display = "block";
+
             setTimeout(() => {
-                report.style.opacity = "1";
-                report.innerHTML = `
-                    <h2 style="color:white; border-bottom: 1px solid #334">FILE_DELETED: EVIDENCE_LOG_9902</h2>
-                    <p style="color:#64748b">[RECORDING START]</p>
-                    <p>Officers arrived at 03:00 following a noise complaint. Subject found slumped at terminal.</p>
-                    <p>Investigation found a single firearm on the floor. The assessment on screen was completed with 0% stability. No other individuals were found in the locked room.</p>
-                    <p>Strangely, the subject's final browser history shows they were talking to someone who wasn't there.</p>
-                    <p><strong>VERDICT:</strong> SELF-TERMINATION DUE TO ACUTE PSYCHOSIS.</p>
+                report.style.display = "block";
+                content.innerHTML = `
+                    <h2 style="color:red">POLICE DEPARTMENT - CRIME SCENE DIVISION</h2>
+                    <p><strong>CASE ID:</strong> 2026-X88</p>
+                    <p><strong>SUBJECT:</strong> UNIDENTIFIED USER</p>
+                    <hr style="border-color:#333">
+                    <p>Officers arrived at the scene at 03:14 AM following reports of a single gunshot. Upon entry, the victim was discovered seated at a desk, facing a computer screen.</p>
+                    <p>The display showed a 'Clinical Assessment' survey with 0% Stability remaining. No external force was detected. Forensics recovered a standard 9mm casing. </p>
+                    <p>The browser history indicates a rapid descent into acute paranoid psychosis over the span of 20 questions. Case closed: Self-Termination.</p>
                 `;
             }, 3000);
-
         } else {
             document.getElementById('jumpscare-sfx').play();
             startStatic();
             setTimeout(() => {
-                overlay.style.display = "block";
-                report.style.opacity = "1";
-                report.innerHTML = `
-                    <h2 style="color:white; border-bottom: 1px solid #334">MISSING PERSONS: CASE_1105</h2>
-                    <p style="color:#64748b">[CASE STATUS: UNRESOLVED]</p>
-                    <p>The subject vanished while the assessment was active. The door was locked from the inside. Windows remained undisturbed.</p>
-                    <p>Evidence suggests an intruder entered through a 'structural anomaly' in the wall. Biological traces suggest the subject was harvested for black market organ trade.</p>
-                    <p>Subject's remains have been flagged in three different countries. The head was never recovered.</p>
-                    <p><strong>LOCATION:</strong> UNKNOWN / DISTRIBUTED</p>
+                report.style.display = "block";
+                content.innerHTML = `
+                    <h2 style="color:white">FEDERAL BUREAU OF INVESTIGATION - MISSING PERSONS</h2>
+                    <p><strong>CASE ID:</strong> 2026-M41</p>
+                    <p><strong>STATUS:</strong> OPEN / UNRESOLVED</p>
+                    <hr style="border-color:#333">
+                    <p>The victim's residence was found abandoned. The front door was left wide open. Coffee was still warm on the desk. No biological traces were found at the scene.</p>
+                    <p>Evidence gathered from dark web intercepts suggests the victim was 'harvested' within minutes of completing an online psychological screening. Intelligence indicates several internal organs were sold via a black market portal 4 hours after the disappearance.</p>
+                    <p>The subject is still missing. No body is expected to be found.</p>
                 `;
-            }, 2000);
+            }, 1500);
         }
     }
 
@@ -231,7 +239,7 @@
             const buffer32 = new Uint32Array(idata.data.buffer);
             for (let i = 0; i < buffer32.length; i++) buffer32[i] = Math.random() < 0.5 ? 0xff000000 : 0xffffffff;
             ctx.putImageData(idata, 0, 0);
-            if(canvas.style.opacity === "1") requestAnimationFrame(draw);
+            requestAnimationFrame(draw);
         }
         draw();
     }
