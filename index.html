@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Symptom Tracker | Secure Portal</title>
+    <title>Clinical Assessment Portal</title>
     <style>
         :root {
             --med-blue: #2a5298;
             --clinical-white: #f0f2f5;
             --text-dark: #1a202c;
-            --horror-red: #660000;
+            --horror-red: #8b0000;
         }
 
         body {
@@ -18,26 +18,28 @@
             color: var(--text-dark);
             font-family: 'Segoe UI', sans-serif;
             height: 100vh; display: flex; flex-direction: column;
-            overflow: hidden; transition: all 1s ease;
+            overflow: hidden; transition: background 1.5s ease;
         }
 
         header {
             background: var(--med-blue);
             color: white; padding: 12px;
-            text-align: center; font-size: 0.8rem;
+            text-align: center; font-size: 0.75rem;
             text-transform: uppercase; letter-spacing: 2px;
+            z-index: 10;
         }
 
-        .progress-bar { height: 4px; background: #ccd6dd; width: 100%; }
+        .progress-bar { height: 4px; background: #ccd6dd; width: 100%; z-index: 10; }
         #progress-fill { height: 100%; background: #4299e1; width: 0%; transition: width 0.3s; }
 
-        main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 5; }
 
         .survey-card {
             width: 100%; max-width: 450px;
             background: white; padding: 25px;
             border-radius: 4px; border-bottom: 3px solid var(--med-blue);
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.5s ease;
         }
 
         h2 { font-size: 1.1rem; margin-bottom: 20px; line-height: 1.6; font-weight: 500; }
@@ -48,66 +50,77 @@
             background: #fff; border: 1px solid #d1d5db;
             padding: 14px; border-radius: 4px;
             text-align: left; font-size: 0.9rem;
-            -webkit-tap-highlight-color: transparent;
+            outline: none; -webkit-tap-highlight-color: transparent;
         }
 
-        /* Horror Classes */
+        /* Static Effect Canvas */
+        #static-canvas {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            opacity: 0; pointer-events: none;
+            z-index: 999;
+        }
+
+        /* Horror Visuals */
         .glitch-text { color: var(--horror-red) !important; font-family: monospace; font-weight: bold; }
         .breathing { animation: breathe 4s infinite ease-in-out; }
         @keyframes breathe {
             0% { transform: scale(1); }
-            50% { transform: scale(1.02); filter: brightness(0.9); }
+            50% { transform: scale(1.03); filter: brightness(0.8); }
             100% { transform: scale(1); }
-        }
-
-        .shake { animation: shake 0.2s infinite; }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px); }
-            50% { transform: translate(-1px, -2px); }
-            100% { transform: translate(1px, -1px); }
         }
     </style>
 </head>
 <body>
 
-<header id="header-txt">Central Medical Database - Patient ID: [HIDDEN]</header>
+<header id="header-txt">Central Medical Database - Security Level 4</header>
 <div class="progress-bar"><div id="progress-fill"></div></div>
+
+<canvas id="static-canvas"></canvas>
 
 <main>
     <div class="survey-card" id="card">
-        <h2 id="q-text">Loading secure assessment...</h2>
+        <h2 id="q-text">System Initializing...</h2>
         <div class="options-list" id="opt-list"></div>
     </div>
 </main>
 
+<audio id="bg-sfx" loop>
+    <source src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/freesound_community-scray-reverse-piano-with-clock-ticking-63173.mp3" type="audio/mpeg">
+</audio>
+<audio id="jumpscare-sfx">
+    <source src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/u_xg7ssi08yr-television-static-421360.mp3" type="audio/mpeg">
+</audio>
+
 <script>
     let step = 0;
+    const bgAudio = document.getElementById('bg-sfx');
+    const jumpAudio = document.getElementById('jumpscare-sfx');
+    const canvas = document.getElementById('static-canvas');
+    const ctx = canvas.getContext('2d');
+
     const questions = [
-        // 1-5: Depression / Clinical
         { q: "How many hours of restful sleep have you achieved in the last 48 hours?", opts: ["8+ hours", "6 hours", "4 hours", "2 hours", "None"] },
         { q: "Do you find yourself losing interest in hobbies you previously enjoyed?", opts: ["Not at all", "Slightly", "Significantly", "Entirely", "I don't remember joy"] },
         { q: "Rate your current level of physical exhaustion.", opts: ["Low", "Moderate", "High", "Debilitating", "My limbs feel like lead"] },
         { q: "How often do you struggle to get out of bed in the morning?", opts: ["Never", "Once a week", "Every other day", "Daily", "The bed is the only safe place"] },
         { q: "Do you experience 'brain fog' or difficulty concentrating?", opts: ["Never", "Rarely", "Often", "Always", "Thoughts are disappearing"] },
         
-        // 6-10: Darker Depression / Dissociation
-        { q: "When you look in the mirror, do you recognize the person looking back?", opts: ["Always", "Mostly", "Rarely", "It's a stranger", "There is no one there"] },
-        { q: "Does the concept of 'tomorrow' bring you any sense of hope?", opts: ["Yes", "Maybe", "No", "Tomorrow is a threat", "Time has stopped moving"] },
+        { q: "When you look in the mirror, do you recognize the person looking back?", opts: ["Always", "Mostly", "Rarely", "It's a stranger", "It is not my face"] },
+        { q: "Does the concept of 'tomorrow' bring you any sense of hope?", opts: ["Yes", "Maybe", "No", "Tomorrow is a threat", "Time has stopped"] },
         { q: "How often do you feel like you are watching your life through a screen?", opts: ["Never", "Rarely", "Commonly", "I am a spectator", "Break the glass"] },
         { q: "Rate the silence in your home.", opts: ["Peaceful", "Quiet", "Heavy", "Suffocating", "The silence is screaming"] },
-        { q: "Do you feel like you are being punished for something you didn't do?", opts: ["No", "Unsure", "Yes", "By life", "By the things in the dark"] },
+        { q: "Do you feel like you are being punished for something you didn't do?", opts: ["No", "Unsure", "Yes", "By life", "I deserve this"] },
 
-        // 11-15: Schizophrenia / Paranoia
-        { q: "Do you hear your name being called when no one else is in the room?", opts: ["Never", "Once", "Weekly", "Daily", "I am talking to them now"] },
-        { q: "Do you believe your neighbors have installed cameras inside your walls?", opts: ["No", "Unlikely", "Possibly", "I've seen the lenses", "They are behind the wallpaper"] },
-        { q: "Does the static on the TV contain messages meant only for you?", opts: ["No", "N/A", "Sometimes", "Clearly", "I follow the static's orders"] },
-        { q: "How many people are currently hiding in your peripheral vision?", opts: ["0", "Maybe 1", "3 or more", "Too many to count", "One is right behind you"] },
-        { q: "Do your thoughts feel like they belong to someone else?", opts: ["No", "Occasionally", "Mostly", "They are stolen", "He is thinking for me now"] },
+        { q: "Do you hear your name being called when no one else is in the room?", opts: ["Never", "Once", "Weekly", "Daily", "We are talking now"] },
+        { q: "Do you believe your neighbors have installed cameras inside your walls?", opts: ["No", "Unlikely", "Possibly", "I've seen the lenses", "They are watching"] },
+        { q: "Does the static on the TV contain messages meant only for you?", opts: ["No", "N/A", "Sometimes", "Clearly", "I follow the static"] },
+        { q: "How many people are currently hiding in your peripheral vision?", opts: ["0", "Maybe 1", "3 or more", "Too many to count", "One is touching you"] },
+        { q: "Do your thoughts feel like they belong to someone else?", opts: ["No", "Occasionally", "Mostly", "They are stolen", "Stop reading my mind"] },
 
-        // 16-20: Pure Horror
-        { q: "Can you feel the breathing on the back of your neck right now?", opts: ["No", "Just a draft", "Yes", "It's getting warmer", "I won't turn around"] },
-        { q: "Are you aware that this survey is not a medical tool?", opts: ["I suspected", "What is it?", "It's a trap", "It's a ritual", "IT IS A FEEDING TUBE"] },
-        { q: "Which part of you will they take first?", opts: ["My eyes", "My voice", "My memory", "My skin", "All of it"] },
+        { q: "Can you feel the breathing on the back of your neck right now?", opts: ["No", "Just a draft", "Yes", "It's getting warmer", "Don't turn around"] },
+        { q: "If you were to vanish this very moment, would anyone truly notice your disappearance?", opts: ["Yes", "Eventually", "Maybe one person", "Probably not", "I am already gone"] },
+        { q: "If you disappeared tonight, how many days would pass before the smell alerted the neighbors?", opts: ["1-2 days", "A week", "A month", "Nobody would check", "I'm already gone"] },
         { q: "Are you still alone in the room?", opts: ["Yes", "No", "I think so", "Someone just moved", "HELP ME"] },
         { q: "Will you let us in?", opts: ["No", "Please stop", "Yes", "I have no choice", "THE DOOR IS OPEN"] }
     ];
@@ -118,20 +131,13 @@
         const optBox = document.getElementById('opt-list');
         const card = document.getElementById('card');
         
-        // Progress
         document.getElementById('progress-fill').style.width = ((step / questions.length) * 100) + "%";
         
-        // Intensity Logic
-        if (step >= 5) document.body.style.backgroundColor = "#d1d5db";
+        // Phase Triggers
+        if (step === 5) bgAudio.play().catch(() => {});
         if (step >= 10) {
             card.classList.add('breathing');
-            document.body.style.backgroundColor = "#1a202c";
-            document.getElementById('header-txt').innerText = "VITAL SIGNS DROPPING";
-        }
-        if (step >= 15) {
-            qElement.classList.add('glitch-text');
-            card.style.borderColor = "red";
-            if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            document.body.style.backgroundColor = "#0d1117";
         }
 
         qElement.innerText = data.q;
@@ -141,7 +147,9 @@
             const b = document.createElement('button');
             b.className = 'btn-opt';
             b.innerText = text;
-            if (i === 4 && step > 10) b.classList.add('glitch-text');
+            if (i === 4 && step >= 10) b.classList.add('glitch-text');
+            if (i === 4 && step >= 15) b.innerText = "ERROR: SYSTEM FORCED";
+            
             b.onclick = next;
             optBox.appendChild(b);
         });
@@ -152,15 +160,33 @@
         if (step < questions.length) {
             updateGame();
         } else {
-            finalize();
+            triggerJumpscare();
         }
     }
 
-    function finalize() {
-        document.body.style.backgroundColor = "black";
-        document.getElementById('card').innerHTML = `<h2 class="glitch-text" style="text-align:center;">THANK YOU FOR THE BODY.<br><br>SYSTEM OFFLINE.</h2>`;
-        document.getElementById('header-txt').innerText = "CONNECTION LOST";
-        if(navigator.vibrate) navigator.vibrate(2000);
+    function triggerJumpscare() {
+        bgAudio.pause();
+        jumpAudio.play();
+        
+        // Activate Static Canvas
+        canvas.style.opacity = "0.8";
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        function drawStatic() {
+            const idata = ctx.createImageData(canvas.width, canvas.height);
+            const buffer32 = new Uint32Array(idata.data.buffer);
+            for (let i = 0; i < buffer32.length; i++) {
+                if (Math.random() < 0.5) buffer32[i] = 0xff000000;
+                else buffer32[i] = 0xffffffff;
+            }
+            ctx.putImageData(idata, 0, 0);
+            requestAnimationFrame(drawStatic);
+        }
+        drawStatic();
+
+        document.getElementById('card').innerHTML = `<h2 class="glitch-text" style="color:white !important; text-align:center;">SUBJECT ACQUIRED.<br>SESSION TERMINATED.</h2>`;
+        if(navigator.vibrate) navigator.vibrate([100, 100, 100, 500, 100, 1000]);
     }
 
     updateGame();
